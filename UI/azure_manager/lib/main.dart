@@ -15,18 +15,35 @@ class VmManager extends StatefulWidget {
 }
 
 class _VmManagerState extends State<VmManager> {
-  final String apiBaseUrl = 'http://localhost:3001/api/azure/vm';
+  final String apiBaseUrl = 'http://localhost:8000/api/azure/vm';
+  final String dbBaseUrl = 'http://localhost:8000/api/db';
 
   final TextEditingController vmNameController = TextEditingController();
   final TextEditingController sshKeyController = TextEditingController();
 
+  List<dynamic> vms = [];
+
   void _showSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   }
 
-  Future<void> createEC2() async {
+  Future<void> fetchAllVMs() async {
+    try {
+      final response = await http.get(Uri.parse('$dbBaseUrl/all'));
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        setState(() {
+          vms = data;
+        });
+      } else {
+        _showSnackBar('Ошибка загрузки ВМ: ${response.statusCode}');
+      }
+    } catch (e) {
+      _showSnackBar('Ошибка сети: $e');
+    }
+  }
+
+  Future<void> createVm() async {
     try {
       final response = await http.post(
         Uri.parse('$apiBaseUrl/create'),
@@ -36,9 +53,9 @@ class _VmManagerState extends State<VmManager> {
           'sshKey': sshKeyController.text,
         }),
       );
-
       if (response.statusCode == 201) {
         _showSnackBar('ВМ создана успешно!');
+        await fetchAllVMs();
       } else {
         _showSnackBar('Ошибка: ${response.statusCode}\n${response.body}');
       }
@@ -47,18 +64,16 @@ class _VmManagerState extends State<VmManager> {
     }
   }
 
-  Future<void> deleteEC2() async {
+  Future<void> deleteVm() async {
     try {
       final response = await http.post(
         Uri.parse('$apiBaseUrl/terminate'),
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'vmName': vmNameController.text,
-        }),
+        body: jsonEncode({'vmName': vmNameController.text}),
       );
-
       if (response.statusCode == 201) {
         _showSnackBar('ВМ удалена успешно!');
+        await fetchAllVMs();
       } else {
         _showSnackBar('Ошибка: ${response.statusCode}\n${response.body}');
       }
@@ -94,9 +109,9 @@ class _VmManagerState extends State<VmManager> {
           TextButton(
             onPressed: () async {
               Navigator.pop(context);
-              await createEC2();
+              await createVm();
             },
-            child: Text('Create'),
+            child: Text('Создать'),
           ),
         ],
       ),
@@ -105,7 +120,6 @@ class _VmManagerState extends State<VmManager> {
 
   void showDeleteDialog(BuildContext context) {
     vmNameController.clear();
-
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
@@ -118,9 +132,9 @@ class _VmManagerState extends State<VmManager> {
           TextButton(
             onPressed: () async {
               Navigator.pop(context);
-              await deleteEC2();
+              await deleteVm();
             },
-            child: Text('Delete'),
+            child: Text('Удалить'),
           ),
         ],
       ),
@@ -128,27 +142,48 @@ class _VmManagerState extends State<VmManager> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    fetchAllVMs(); 
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('Azure VM Manager')),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(32),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              ElevatedButton(
-                onPressed: () => showCreateDialog(context),
-                child: Text('Create Instance'),
-              ),
-              SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () => showDeleteDialog(context),
-                child: Text('Delete Instance'),
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-              ),
-            ],
-          ),
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          children: [
+            ElevatedButton(
+              onPressed: () => showCreateDialog(context),
+              child: Text('Create Instance'),
+            ),
+            SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: () => showDeleteDialog(context),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+              child: Text('Delete Instance'),
+            ),
+            SizedBox(height: 30),
+            Text('Виртуальные машины из базы:', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            SizedBox(height: 10),
+            Expanded(
+              child: vms.isEmpty
+                  ? Center(child: Text('Нет виртуальных машин'))
+                  : ListView.builder(
+                      itemCount: vms.length,
+                      itemBuilder: (context, index) {
+                        final vm = vms[index];
+                        return ListTile(
+                          leading: Icon(Icons.cloud),
+                          title: Text('${vm['vmName']}'),
+                          subtitle: Text('ID: ${vm['vmId']}'),
+                        );
+                      },
+                    ),
+            ),
+          ],
         ),
       ),
     );

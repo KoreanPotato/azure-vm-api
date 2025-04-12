@@ -11,15 +11,15 @@ dotenv.config();
   imports: [
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: 'db', 
-      port: 5432,
-      username: 'myuser',
-      password: 'mypassword',
-      database: 'mydb',
+      host: process.env.DB_HOST,
+      port: Number(process.env.DB_PORT),
+      username: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME,
       entities: [__dirname + '/../**/*.entity.{js,ts}'],
       synchronize: true,
-      retryAttempts: 10, 
-      retryDelay: 3000,  
+      retryAttempts: 10,
+      retryDelay: 3000,
     }),
     TypeOrmModule.forFeature([VmEntity])
   ],

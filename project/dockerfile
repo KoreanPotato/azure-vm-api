@@ -9,6 +9,6 @@ COPY . .
 
 RUN npx nest build
 
-EXPOSE 3001
+EXPOSE 8000
 
-CMD ["node", "dist/main"]
+CMD ["node", "dist/main.js"]

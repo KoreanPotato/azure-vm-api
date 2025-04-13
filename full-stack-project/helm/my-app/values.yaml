@@ -1,0 +1,24 @@
+backend: 
+  image: nekoreec/backend
+  tag: latest
+  port: 8000
+  env:                           
+    DB_HOST: postgres            
+    DB_PORT: 5432                
+    DB_USER: myuser              
+    DB_PASSWORD: mypassword      
+    DB_NAME: mydb   
+
+frontend: 
+  image: nekoreec/frontend
+  tag: latest
+  port: 80
+
+postgres:
+  image: postgres
+  tag: "15"
+  port: 5432
+  user: myuser
+  password: mypassword
+  database: mydb
+  storage: 5Gi

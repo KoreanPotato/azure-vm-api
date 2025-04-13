@@ -15,8 +15,8 @@ class VmManager extends StatefulWidget {
 }
 
 class _VmManagerState extends State<VmManager> {
-  final String apiBaseUrl = 'http://localhost:8000/api/azure/vm';
-  final String dbBaseUrl = 'http://localhost:8000/api/db';
+  final String apiBaseUrl = 'http://myapp.local/api/azure/vm';
+  final String dbBaseUrl = 'http://myapp.local/api/db';
 
   final TextEditingController vmNameController = TextEditingController();
   final TextEditingController sshKeyController = TextEditingController();

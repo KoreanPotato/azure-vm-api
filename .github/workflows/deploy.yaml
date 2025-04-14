@@ -37,6 +37,15 @@ jobs:
       - name: Push backend to Docker hub
         run: docker push nekoreec/backend:latest
 
+
+  Helm deploy:
+    name: deploy
+    runs-on: ubuntu-latest
+
+    steps: 
+      - name: Checkout code
+        uses: actions/checkout@v3
+
       - name: Write SSH key
         run: | 
           mkdir -p ~/.ssh
@@ -52,10 +61,20 @@ jobs:
       - name: Set up ansible
         run: sudo apt update && sudo apt install -y ansible sshpass
 
-      - name: Configure Azure VM
-        run: |
-          export ANSIBLE_HOST_KEY_CHECKING=False
-          ansible-playbook -i ansible/inventory.ini ansible/ansible.setup.yml
+      
+
+    deploy:
+      name: deploy
+      runs-on: ubuntu-latest
+
+      steps: 
+        - name: Checkout code
+          uses: actions/checkout@v3
+          
+        - name: Configure Azure VM
+          run: |
+            export ANSIBLE_HOST_KEY_CHECKING=False
+            ansible-playbook -i ansible/inventory.ini ansible/ansible.setup.yml
     
 
 

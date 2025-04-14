@@ -45,11 +45,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Download deploy files
-        uses: actions/download-artifact@v4
-        with:
-          name: deploy-files
-          path: setup/
+      - name: Checkout code
+        uses: actions/checkout@v3
 
       - name: Write SSH key
         run: |
@@ -63,7 +60,7 @@ jobs:
       - name: Run Ansible to set up Minikube
         run: |
           export ANSIBLE_HOST_KEY_CHECKING=False
-          ansible-playbook setup/ansible/setup_minikube.yml -i "${{ secrets.VM_HOST }}," -u ${{ secrets.SSH_USER }} --private-key ~/.ssh/id_rsa
+          ansible-playbook ansible/setup_minikube.yml -i "${{ secrets.VM_HOST }}," -u ${{ secrets.SSH_USER }} --private-key ~/.ssh/id_rsa
 
   deploy-helm:
     runs-on: ubuntu-latest

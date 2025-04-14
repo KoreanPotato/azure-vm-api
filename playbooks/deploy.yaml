@@ -1,0 +1,64 @@
+- name: Setup & Deploy Helm
+  hosts: all
+  become: true
+
+  vars:
+    minikube_driver: docker
+    helm_chart_path: /home/ubuntu/helm-deploy
+
+  tasks:
+    - name: Ensure dependencies are installed
+      apt:
+        name: "{{ item }}"
+        state: present
+        update_cache: true
+      loop:
+        - curl
+        - apt-transport-https
+        - ca-certificates
+        - gnupg
+        - lsb-release
+        - software-properties-common
+        - conntrack
+        - docker.io
+
+    - name: Start Docker
+      service:
+        name: docker
+        state: started
+        enabled: true
+
+    - name: Install Minikube
+      shell: |
+        curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+        install minikube /usr/local/bin/minikube
+      args:
+        creates: /usr/local/bin/minikube
+
+    - name: Install kubectl
+      shell: |
+        curl -Lo kubectl https://dl.k8s.io/release/$(curl -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl
+        install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+      args:
+        creates: /usr/local/bin/kubectl
+
+    - name: Install Helm
+      shell: |
+        curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+      args:
+        creates: /usr/local/bin/helm
+
+    - name: Start Minikube
+      become_user: ubuntu
+      shell: |
+        minikube start --driver={{ minikube_driver }}
+      environment:
+        CHANGE_MINIKUBE_NONE_USER: "true"
+        HOME: /home/ubuntu
+
+    - name: Deploy Helm Chart
+      become_user: ubuntu
+      shell: |
+        helm upgrade --install my-app {{ helm_chart_path }}
+      environment:
+        KUBECONFIG: /home/ubuntu/.kube/config

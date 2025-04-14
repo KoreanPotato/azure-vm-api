@@ -1,0 +1,10 @@
+- name: Deploy Helm chart
+  hosts: all
+  become: false
+
+  tasks:
+    - name: Upgrade or install Helm
+      shell: |
+        helm upgrade --install my-app /home/ubuntu/helm-deploy
+      environment:
+        KUBECONFIG: /home/ubuntu/.kube/config

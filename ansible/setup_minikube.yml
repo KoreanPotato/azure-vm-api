@@ -1,43 +1,38 @@
-- name: Setup & Deploy Helm
-  hosts: servers
+- name: Setup Minikube and Helm
+  hosts: all
   become: true
 
-  vars:
-    minikube_driver: docker
-    helm_chart_path: /home/ubuntu/helm-deploy
-
   tasks:
-    - name: Ensure dependencies are installed
+    - name: Install dependencies
       apt:
         name: "{{ item }}"
         state: present
-        update_cache: true
+        update_cache: yes
       loop:
         - curl
+        - docker.io
+        - conntrack
         - apt-transport-https
         - ca-certificates
         - gnupg
         - lsb-release
-        - software-properties-common
-        - conntrack
-        - docker.io
 
-    - name: Start Docker
+    - name: Enable and start Docker
       service:
         name: docker
-        state: started
         enabled: true
+        state: started
 
     - name: Install Minikube
       shell: |
-        curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
-        install minikube /usr/local/bin/minikube
+        curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+        install minikube-linux-amd64 /usr/local/bin/minikube
       args:
         creates: /usr/local/bin/minikube
 
     - name: Install kubectl
       shell: |
-        curl -Lo kubectl https://dl.k8s.io/release/$(curl -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl
+        curl -LO "https://dl.k8s.io/release/$(curl -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
         install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
       args:
         creates: /usr/local/bin/kubectl
@@ -51,14 +46,7 @@
     - name: Start Minikube
       become_user: ubuntu
       shell: |
-        minikube start --driver={{ minikube_driver }}
+        minikube start --driver=docker
       environment:
         CHANGE_MINIKUBE_NONE_USER: "true"
         HOME: /home/ubuntu
-
-    - name: Deploy Helm Chart
-      become_user: ubuntu
-      shell: |
-        helm upgrade --install my-app {{ helm_chart_path }}
-      environment:
-        KUBECONFIG: /home/ubuntu/.kube/config

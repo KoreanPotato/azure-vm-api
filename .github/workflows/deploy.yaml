@@ -61,20 +61,18 @@ jobs:
       - name: Set up ansible
         run: sudo apt update && sudo apt install -y ansible sshpass
 
-      
+  deploy:
+    name: deploy
+    runs-on: ubuntu-latest
 
-    deploy:
-      name: deploy
-      runs-on: ubuntu-latest
+    steps: 
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-      steps: 
-        - name: Checkout code
-          uses: actions/checkout@v3
-          
-        - name: Configure Azure VM
-          run: |
-            export ANSIBLE_HOST_KEY_CHECKING=False
-            ansible-playbook -i ansible/inventory.ini ansible/ansible.setup.yml
+      - name: Configure Azure VM
+        run: |
+          export ANSIBLE_HOST_KEY_CHECKING=False
+          ansible-playbook -i ansible/inventory.ini ansible/ansible.setup.yml
     
 
 

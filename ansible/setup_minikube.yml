@@ -32,8 +32,7 @@
 
     - name: Install kubectl
       shell: |
-        VERSION=$(curl -s https://dl.k8s.io/release/stable.txt)
-        curl -LO "https://dl.k8s.io/release/${VERSION}/bin/linux/amd64/kubectl"
+        curl -LO https://dl.k8s.io/release/v1.29.1/bin/linux/amd64/kubectl
         install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
       args:
         creates: /usr/local/bin/kubectl

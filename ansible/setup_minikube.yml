@@ -1,6 +1,6 @@
 - name: Setup Minikube and Helm
   hosts: all
-  become: false
+  become: true  
 
   tasks:
     - name: Install dependencies
@@ -32,8 +32,9 @@
 
     - name: Install kubectl
       shell: |
-        curl -LO https://dl.k8s.io/release/v1.29.1/bin/linux/amd64/kubectl
-        install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+        bash -c 'VERSION=$(curl -s https://dl.k8s.io/release/stable.txt) && \
+        curl -LO https://dl.k8s.io/release/${VERSION}/bin/linux/amd64/kubectl && \
+        install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl'
       args:
         creates: /usr/local/bin/kubectl
 
@@ -44,7 +45,7 @@
         creates: /usr/local/bin/helm
 
     - name: Start Minikube
-      become_user: ubuntu
+      become: false  
       shell: |
         minikube start --driver=docker
       environment:

@@ -1,6 +1,6 @@
 - name: Setup Minikube and Helm
   hosts: all
-  become: true
+  become: false
 
   tasks:
     - name: Install dependencies

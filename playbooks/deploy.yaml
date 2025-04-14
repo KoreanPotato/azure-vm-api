@@ -1,5 +1,5 @@
 - name: Setup & Deploy Helm
-  hosts: all
+  hosts: servers
   become: true
 
   vars:

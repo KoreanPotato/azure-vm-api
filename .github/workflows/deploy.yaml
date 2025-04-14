@@ -37,12 +37,25 @@ jobs:
       - name: Push backend to Docker hub
         run: docker push nekoreec/backend:latest
 
-  setup-and-deploy:
-    name: Setup minicube via ansible
-    runs-on: ubuntu-latest
-    steps: 
-          - name: Checkout code
-            uses: actions/checkout@v3 
+      - name: Write SSH key
+        run: | 
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
+      - name: Create inventory file
+        run: |
+          echo "[azure]" > ansible/inventory.ini
+          echo "${{ secrets.PUBLIC_IP }} ansible_user=${{ secrets.SSH_USER }} ansible_ssh_private_key_file=~/.ssh/id_rsa" >> ansible/inventory.ini
+          cat ansible/inventory.ini
+
+      - name: Set up ansible
+        run: sudo apt update && sudo apt install -y ansible sshpass
+
+      - name: Configure Azure VM
+        run: |
+          export ANSIBLE_HOST_KEY_CHECKING=False
+          ansible-playbook -i ansible/inventory.ini ansible/ansible.setup.yml
     
 
 

@@ -24,7 +24,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build frontend Docker image
-        run: docker build -t nekoreec/frontend:latest .
+        run: docker build -t nekoreec/frontend:latest
         working-directory: ./UI/azure-manager
           
       - name: Push frontend to Docker hub
@@ -40,7 +40,7 @@ jobs:
   setup-and-deploy:
     name: Setup minicube via ansible
     runs-on: ubuntu-latest
-    
+
     steps: 
           - name: Checkout code
             uses: actions/checkout@v3 

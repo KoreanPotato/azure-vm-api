@@ -79,6 +79,10 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
 
+      - name: Copy deploy files to VM
+        run: |
+          scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa -r deploy ${{ secrets.SSH_USER }}@${{ secrets.VM_HOST }}:/home/${{ secrets.SSH_USER }}/helm-deploy
+
       - name: Set up Ansible
         run: sudo apt update && sudo apt install -y ansible
 

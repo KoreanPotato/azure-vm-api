@@ -3,8 +3,8 @@
   become: false
 
   tasks:
-    - name: Upgrade or install Helm
+    - name: Upgrad Helm chart
       shell: |
-        helm upgrade --install my-app /home/ubuntu/helm-deploy
+        helm upgrade --install my-app {{ ansible_env.HOME }}/helm-deploy
       environment:
-        KUBECONFIG: /home/ubuntu/.kube/config
+        KUBECONFIG: "{{ ansible_env.HOME }}/.kube/config"

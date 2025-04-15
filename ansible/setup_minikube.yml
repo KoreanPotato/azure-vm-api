@@ -62,7 +62,7 @@
         minikube start --driver=docker
       environment:
         CHANGE_MINIKUBE_NONE_USER: "true"
-        HOME: "{{ ansible_env.HOME }}"
+        HOME: "/home/sergey"
 
 
 

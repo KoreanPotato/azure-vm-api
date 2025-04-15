@@ -44,6 +44,12 @@
       args:
         creates: /usr/local/bin/helm
 
+    - name: Ensure current user is in docker group
+      user:
+        name: "{{ ansible_user }}"
+        groups: docker
+        append: yes
+
     - name: Ensure Minikube clean
       become: false
       shell: |

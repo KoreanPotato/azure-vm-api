@@ -45,7 +45,7 @@
         creates: /usr/local/bin/helm
 
     - name: Start Minikube
-      become: false
+      become: true
       shell: |
         minikube start --driver=docker
       environment:

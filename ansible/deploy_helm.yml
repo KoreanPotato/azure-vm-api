@@ -5,6 +5,6 @@
   tasks:
     - name: Upgrad Helm chart
       shell: |
-        helm upgrade --install my-app {{ ansible_env.HOME }}/helm-deploy
+        helm upgrade --install my-app {{ ansible_env.HOME }}/helm-deploy/full-stack-project/helm/my-app
       environment:
         KUBECONFIG: "{{ ansible_env.HOME }}/.kube/config"

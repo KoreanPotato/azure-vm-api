@@ -44,16 +44,19 @@
       args:
         creates: /usr/local/bin/helm
 
-    - name: Clean up previous Minikube
-      shell: minikube delete || true
+    - name: Ensure Minikube clean
+      become: false
+      shell: |
+        minikube delete || true
       ignore_errors: true
 
-    - name: Start Minikube (with force)
-      become: true
+    - name: Start Minikube (safe)
+      become: false
       shell: |
-        minikube start --driver=docker --force
+        minikube start --driver=docker
       environment:
         CHANGE_MINIKUBE_NONE_USER: "true"
         HOME: "{{ ansible_env.HOME }}"
+
 
 

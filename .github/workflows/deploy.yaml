@@ -79,6 +79,16 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
 
+      - name: Inject Azure secrets into values.yaml
+        run: |
+          sed -i "s|AZURE_TENANT_ID: .*|AZURE_TENANT_ID: ${AZURE_TENANT_ID}|" deploy/full-stack-project/helm/my-app/values.yaml
+          sed -i "s|AZURE_CLIENT_ID: .*|AZURE_CLIENT_ID: ${AZURE_CLIENT_ID}|" deploy/full-stack-project/helm/my-app/values.yaml
+          sed -i "s|AZURE_CLIENT_SECRET: .*|AZURE_CLIENT_SECRET: ${AZURE_CLIENT_SECRET}|" deploy/full-stack-project/helm/my-app/values.yaml
+        env:
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+
       - name: Copy deploy files to VM
         run: |
           scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa -r deploy ${{ secrets.SSH_USER }}@${{ secrets.VM_HOST }}:/home/${{ secrets.SSH_USER }}/helm-deploy

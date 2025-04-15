@@ -28,4 +28,11 @@ spec:
               value: {{ .Values.backend.env.DB_PASSWORD }}
             - name: DB_NAME
               value: {{ .Values.backend.env.DB_NAME }}
+            - name: AZURE_TENANT_ID
+              value: "{{ .Values.backend.env.AZURE_TENANT_ID }}"
+            - name: AZURE_CLIENT_ID
+              value: "{{ .Values.backend.env.AZURE_CLIENT_ID }}"
+            - name: AZURE_CLIENT_SECRET
+              value: "{{ .Values.backend.env.AZURE_CLIENT_SECRET }}"
+              
 

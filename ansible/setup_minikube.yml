@@ -44,11 +44,12 @@
       args:
         creates: /usr/local/bin/helm
 
-    - name: Start Minikube
+    - name: Start Minikube (with force)
       become: true
       shell: |
-        minikube start --driver=docker
+        minikube start --driver=docker --force
       environment:
         CHANGE_MINIKUBE_NONE_USER: "true"
         HOME: "{{ ansible_env.HOME }}"
+
 
